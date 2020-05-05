@@ -16,6 +16,7 @@ var step = 50; // 5; // metres
 var eol = [];
 var send_count = 0;
 var msg_id = 0;
+var speed = 60;
 window.initialize = initialize;
 window.setRoutes = setRoutes;
 var scheme = window.location.protocol == "https:" ? 'wss://' : 'ws://';
@@ -28,10 +29,14 @@ const ws = new WebSocket(webSocketUri);
 // called on body load
 function initialize() {
 
-
+    var sp = parseInt($('#miles').val());
+    if(sp == 0)
+        speed = 100000;
+    else
+        speed = 111600/sp;
     ws.onopen = function() {
         console.log('WebSocket Client Connected');
-        ws.send('Hi this is web client.');
+        // ws.send('Hi this is web client.');
     };
     //code to be changed, add a new variable which tracks the current received msg id, if an old id is received discard it, put it in if itself
     ws.onmessage = function(e) {
@@ -104,7 +109,7 @@ function setRoutes() {
     }
     startLoc[0] = startVal;
     endLoc[0] = endVal;
-    
+
     // empty out previous values
     startLocation = [];
     endLocation = [];
@@ -228,12 +233,12 @@ function animate(index, d, tick) {
     console.log(send_count);
     marker[index].setPosition(p);
     updatePoly(index, d);
-    timerHandle[index] = setTimeout("animate(" + index + "," + (d + step) + ")", tick || 1000);
+    timerHandle[index] = setTimeout("animate(" + index + "," + (d + step) + ")", tick || speed);
 }
 
 // start marker movement by updating marker position every 100 milliseconds i.e. tick value
 function startAnimation(index) {
-    if (timerHandle[index]) 
+    if (timerHandle[index])
         clearTimeout(timerHandle[index]);
     eol[index] = polyLine[index].Distance();
     map.setCenter(polyLine[index].getPath().getAt(0));
